@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"log"
 	"os"
 	"strconv"
@@ -71,6 +72,16 @@ func main() {
 	log.Println("arg : ", arg)
 
 	configFile := "feed2mail.json"
+	for _, p := range filepath.SplitList(os.Getenv("PATH")) {
+		fmt.Println(p)
+		f := filepath.Join(p, configFile)
+		_, err := os.Stat(f)
+		if err == nil {
+			fmt.Println(f)
+			configFile = f
+			break
+		}
+	}
 	jsonBuffer, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Println("ERROR: ", err)
@@ -101,7 +112,6 @@ func main() {
 	}
 }
 
-//func PollFeed(uri string, timeout int, cr xmlx.CharsetFunc) {
 func PollFeed(uri string, timeout int) {
 	defer wg.Done()
 	feed := rss.New(timeout, true, chanHandler, itemHandler)
@@ -123,19 +133,19 @@ func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
 func itemHandler(feed *rss.Feed, ch *rss.Channel, newitems []*rss.Item) {
 	log.Printf("%d new item(s) in %s\n", len(newitems), feed.Url)
 
-	//db, err := sql.Open("sqlite3", "./feed2mail.db")
 	db, err := sql.Open("sqlite3", config.Sqlite3.DbFile)
 	if err != nil {
 		panic(err.Error())
 	}
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}
 
-	//t := dbmap.AddTableWithName(DataStore{}, "feed2mail").SetKeys(true, "Id")
 	t := dbmap.AddTableWithName(DataStore{}, config.Sqlite3.Table).SetKeys(true, "Id")
 	t.ColMap("Id").Rename("id")
 	t.ColMap("Url").Rename("url")
 	t.ColMap("Update").Rename("update")
 	t.ColMap("UpdateDate").Rename("update_date")
+
+	dbmap.CreateTablesIfNotExists()
 
 	tx, _ := dbmap.Begin()
 	for _, item := range newitems {
