@@ -1,0 +1,21 @@
+{
+	"smtp": {
+        	"host": "example.com:25",
+	        "auth": false,
+	        "from": "foo@example.com",
+	        "sender": "bar@example.com",
+	        "recipients": [
+			{"to": "reader@example.com"},
+			{"to": "reader2@example.com"}
+		],
+	        "debug": false
+	},
+	"feeds": [
+		{"uri": "http://example.com/redmine/projects/xxx/issues.atom?key=xxxxxxxxxxxxx"},
+		{"uri": "https://example.com/atom.xml"}
+	],
+	"sqlite3": {
+        	"dbfile": "./feed2mail.db",
+        	"table": "feed2mail"
+	}
+}
