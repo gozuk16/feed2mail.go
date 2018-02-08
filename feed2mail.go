@@ -239,8 +239,6 @@ func sendmail(item *rss.Item) {
 	log.Println("content:", item.Content.Text)
 	fmt.Println("")
 
-	return
-
 	c, err := smtp.Dial(config.Smtp.Host)
 	if err != nil {
 		log.Println(err)
