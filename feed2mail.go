@@ -224,8 +224,12 @@ func sendmail(item *rss.Item) {
 		}
 	}
 
-	pubdate, _ := time.Parse(utcformat, item.PubDate)
-	update, _ := time.Parse(utcformat, item.Updated)
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+
+	pubdate, _ := time.Parse(utcformat, item.PubDate.In(jst))
+	update, _ := time.Parse(utcformat, item.Updated.In(jst))
+	//pubdate, _ := time.Parse(utcformat, item.PubDate)
+	//update, _ := time.Parse(utcformat, item.Updated)
 
 	log.Println("pubdate:", item.PubDate)
 	log.Println("pubdate:", pubdate.Format(timeformat))
@@ -233,6 +237,8 @@ func sendmail(item *rss.Item) {
 	log.Println("updated:", update.Format(timeformat))
 	log.Println("content:", item.Content.Text)
 	fmt.Println("")
+
+	return
 
 	c, err := smtp.Dial(config.Smtp.Host)
 	if err != nil {
