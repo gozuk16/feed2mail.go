@@ -6,9 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"sync"
 	"time"
@@ -224,8 +224,13 @@ func sendmail(item *rss.Item) {
 		}
 	}
 
-	pubdate, _ := time.Parse(utcformat, item.PubDate)
-	update, _ := time.Parse(utcformat, item.Updated)
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+
+	pubdateUTC, _ := time.Parse(utcformat, item.PubDate)
+	pubdate := pubdateUTC.In(jst)
+
+	updateUTC, _ := time.Parse(utcformat, item.Updated)
+	update := updateUTC.In(jst)
 
 	log.Println("pubdate:", item.PubDate)
 	log.Println("pubdate:", pubdate.Format(timeformat))
